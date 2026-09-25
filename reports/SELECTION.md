@@ -1,0 +1,11 @@
+# Vì sao chọn lô này?
+
+Trong 50 dòng đứng đầu `outputs/selection_round1.csv`, chọn năm frame bạn sẽ ưu tiên nếu chỉ có
+ngân sách rà năm ảnh. Ghi tên, điểm, thời điểm, thứ tự và lý do; tối thiểu một quyết định phải xét
+ảnh gần trùng hoặc trường hợp model không dự đoán được box: Chọn `frame_0182.jpg` (score 0.9591, 72.8 giây, hạng 1), `frame_0369.jpg` (0.9324, 147.6 giây, hạng 2), `frame_0326.jpg` (0.9155, 130.4 giây, hạng 4), `frame_0312.jpg` (0.9100, 124.8 giây, hạng 7) và `frame_0099.jpg` (0.9063, 39.6 giây, hạng 8). Đây đều là ảnh trong lô 12 ảnh được chọn ở vòng 1. `frame_0331.jpg` có điểm cao hơn `frame_0312.jpg` nhưng cách `frame_0326.jpg` đúng 2.0 giây; vì ngân sách chỉ có năm ảnh, ưu tiên `frame_0326.jpg` và bỏ `frame_0331.jpg` khỏi top 5 để giảm công rà cảnh gần trùng. Cả hai vẫn nằm trong lô 12 ảnh của batch.
+
+Ba frame thuộc lô 12 ảnh model chọn và bằng chứng trong CSV/ảnh contact sheet: `frame_0182.jpg` có điểm cao nhất 0.9591 với 18 box mơ hồ trong 28 box; `frame_0369.jpg` có điểm 0.9324 với độ bất định U = 0.9315 và 16 box mơ hồ trong 43 box; `frame_0099.jpg` có độ bất định U = 0.9460 với 14 box mơ hồ trong 29 box. Các giá trị này cho thấy đây là những ảnh đáng rà trước vì có nhiều trường hợp model chưa chắc chắn.
+
+Một frame có điểm cao nhưng không chọn hoặc một frame có điểm thấp vẫn nên xem, và lý do: Không chọn `frame_0331.jpg` dù đứng hạng 5 với score 0.9154 vì thời điểm 132.4 giây gần `frame_0326.jpg` ở 130.4 giây; rà cả hai có thể lặp lại cùng cảnh và giảm độ đa dạng của năm ảnh. Có thể xem thêm `frame_0225.jpg` ở hạng 44 với score 0.8276 vì điểm A = 0.5, tức tỷ lệ box mơ hồ chỉ bằng một nửa mức tối đa trong pool, nhưng đây là một ứng viên có độ bất định U = 0.9553 và có thể cho thêm một kiểu cảnh khó để kiểm tra. Việc xem thêm ảnh này làm tăng chi phí rà nhãn nên chỉ phù hợp khi còn ngân sách.
+
+Phép chọn này chưa chứng minh về chất lượng mô hình: score được tính từ độ bất định, mức bao phủ và độ đa dạng của ảnh chứ không phải độ chính xác nhãn. Các box trong lô vẫn cần được kiểm tra thủ công trên CVAT. Ngoài ra `metrics_round1.json` và `compare_round1.jpg` chưa có trong repo nên chưa thể kết luận fine-tune cải thiện AP50; ngay cả số đo test trong `metrics_round0.json` cũng đối chiếu với nhãn tham chiếu do model tạo và chỉ có 20 ảnh test.
